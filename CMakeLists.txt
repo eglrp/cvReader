@@ -34,5 +34,9 @@ target_link_libraries(testcv ${OpenCV_LIBS})
 add_executable(gpu_test src/gpu-basics-similarity.cpp)
 target_link_libraries(gpu_test ${OpenCV_LIBS})
 
-add_executable(real_time_pose_estimation real_time_pose_estimation/src/main_detection.cpp)
-target_link_libraries(real_time_pose_estimation ${OpenCV_LIBS})
+
+add_executable(KF_test src/KF_test.cpp)
+target_link_libraries(KF_test ${OpenCV_LIBS})
+
+#add_executable(real_time_pose_estimation real_time_pose_estimation/src/main_detection.cpp)
+#target_link_libraries(real_time_pose_estimation ${OpenCV_LIBS})
