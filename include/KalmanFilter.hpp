@@ -16,7 +16,7 @@ public:
     KalmanFilter(T )
 
 private:
-    
+
 
 };
 
