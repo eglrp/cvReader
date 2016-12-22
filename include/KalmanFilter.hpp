@@ -96,14 +96,14 @@ public:
         //predictor
 
         X_ = (A_ * time_step) * X_ ;
-        std::cout << X_ << std::endl;
+//        std::cout << X_ << std::endl;
 
         P_ =  A_ * P_ * A_.transpose().eval() + Q_;
-        std::cout << P_ << std::endl;
+//        std::cout << P_ << std::endl;
 
         // Kalman gain
-        std::cout << C_ << std::endl;
-        std::cout << (C_ * P_ * C_.transpose().eval() + R_) << std::endl;
+//        std::cout << C_ << std::endl;
+//        std::cout << (C_ * P_ * C_.transpose().eval() + R_) << std::endl;
 
         K_ = P_ * C_.transpose().eval() * (C_ * P_ * C_.transpose().eval() + R_).inverse();
 
@@ -112,9 +112,9 @@ public:
         Eigen::MatrixXd I;
         I.resizeLike(K_ * C_);
         I.setIdentity();
-        std::cout << "I:" << I << std::endl;
+//        std::cout << "I:" << I << std::endl;
 
-        std::cout << "K:" << K_ << std::endl;
+//        std::cout << "K:" << K_ << std::endl;
 
         P_ = (I - K_ * C_) * P_;
         X_ = X_ + K_*(observe_val - C_ * X_);
@@ -143,7 +143,7 @@ protected:
 
     Eigen::Matrix<T,observe_num,state_num> C_; // observation matrix
 
-    Eigen::MatrixXd K_; // Kalman gain.
+    Eigen::Matrix<T,state_num,observe_num> K_; // Kalman gain.
 
 private:
     Eigen::Matrix<T,state_num,1> last_X_; // save state before compute prior and use to compute velocity after compute posterior.
