@@ -4,6 +4,9 @@
 //#include "opticalFlow.h"
 #include "getConfig.h"
 #include <sstream>
+#include <opticalFlow.h>
+
+#include "pthread.h"
 
 using namespace cv;
 using namespace std;

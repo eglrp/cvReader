@@ -7,7 +7,7 @@ using namespace std;
 using namespace cv;
 
 /************************************************************************
-@brief��ͨ��������Lucas - Kanade ������������ĳЩ�㼯�Ĺ�����ϡ�������
+@brief???????????Lucas - Kanade ?????????????��?????????????????
 ************************************************************************/
 class OpticalFlow
 {
@@ -17,8 +17,8 @@ public:
 	~OpticalFlow();
 	void tracking(Mat &_frame);
 	Mat output;
-	vector<Point2f> points[2];	// point0Ϊ�������ԭ��λ�ã������ٵĵ㣩��point1Ϊ��ǰ֡�������㣬�ɹ������������
-	vector<Point2f> initial;	// ���ٵ�ĳ�ʼλ��
+	vector<Point2f> points[2];	// point0???????????��?????????????point1???????????????????????????
+	vector<Point2f> initial;	// ????????��??
 	vector<Point2f> displacement;
 	int getPointsNum(){ return pointsNum; };
 	bool isDroneAppear();
@@ -27,15 +27,133 @@ public:
 private:
 	bool addNewPoints();
 	bool acceptTrackedPoint(int _i);
-	Mat gray;					// ��ǰ֡
-	Mat gray_prev;				// ǰһ֡
-	vector<Point2f> features;	// ����������
-	int max_corners;			// �������������
-	double quality_level;		// �������ĵȼ�
-	double min_dist;			// ��������֮�����С����
-	vector<uchar> status;		// ����������״̬��������������Ϊ1������Ϊ0
-	vector<float> err;			// �¾�����������λ�õ����
-	int pointsNum;				//��׷�������������
+	Mat gray;					// ????
+	Mat gray_prev;				// ???
+	vector<Point2f> features;	// ??????????
+	int max_corners;			// ?????????????
+	double quality_level;		// ??????????
+	double min_dist;			// ??????????????��????
+	vector<uchar> status;		// ???????????????????????????1???????0
+	vector<float> err;			// ?????????????��??????
+	int pointsNum;				//????????????????
 };
 
 
+OpticalFlow::OpticalFlow()
+{
+	int max_corners = 50;
+	double quality_level = 0.01;
+	double min_dist = 10.0;
+}
+
+OpticalFlow::~OpticalFlow()
+{
+}
+
+OpticalFlow::OpticalFlow(int _max_corners = 50, double _quality_level = 0.01, double _min_dist = 10)
+{
+	max_corners = _max_corners;
+	quality_level = _quality_level;
+	min_dist = _min_dist;
+}
+
+//-------------------------------------------------------------------------------------------------
+// @brief: ????
+// @param: frame	?????????
+// @return: void
+//-------------------------------------------------------------------------------------------------
+void OpticalFlow::tracking(Mat &frame)
+{
+	cvtColor(frame, gray, COLOR_BGR2GRAY);//???????OpenCV2?????cvtColor(frame, gray,CV_BGR2GRAY);
+	frame.copyTo(output);
+	displacement.clear();
+	// ?????????
+	if (addNewPoints())
+	{
+		goodFeaturesToTrack(gray, features, max_corners, quality_level, min_dist);
+		points[0].insert(points[0].end(), features.begin(), features.end());
+		initial.insert(initial.end(), features.begin(), features.end());
+	}
+
+	if (!features.empty())
+	{
+		if (gray_prev.empty())
+			gray.copyTo(gray_prev);
+
+		// l-k?????????????
+		calcOpticalFlowPyrLK(gray_prev, gray, points[0], points[1], status, err);
+
+		// ????��???????????
+		int k = 0;
+		for (size_t i = 0; i < points[1].size(); i++)
+		{
+			if (acceptTrackedPoint(i))
+			{
+				initial[k] = initial[i];
+				points[1][k] = points[1][i];
+				k++;
+			}
+		}
+		points[1].resize(k);
+		initial.resize(k);
+
+		pointsNum = points[1].size();
+		if (pointsNum > 0)
+		{
+			motionObject = minAreaRect(points[1]);
+			movingPoints = points[1];
+
+			// ???????????????
+			for (size_t i = 0; i < pointsNum; i++)
+			{
+				displacement.push_back(points[1][i] - initial[i]);
+				line(output, initial[i], points[1][i], Scalar(0, 0, 255));
+				circle(output, points[1][i], 3, Scalar(0, 255, 0), -1);
+			}
+		}
+		// ??????????????????????�¦�?
+		swap(points[1], points[0]);
+		swap(gray_prev, gray);
+	}
+	else
+	{
+		cout << "warning:can't find any features!!\n";//?????????????????????
+	}
+
+}
+
+//-------------------------------------------------------------------------------------------------
+// @brief: ????????????????
+// @param:??
+// @return: ????????
+//-------------------------------------------------------------------------------------------------
+bool OpticalFlow::addNewPoints()
+{
+	return points[0].size() <= 10;
+}
+
+//-------------------------------------------------------------------------------------------------
+// @brief: ??????��??????????
+// @param:
+// @return:
+//-------------------------------------------------------------------------------------------------
+bool OpticalFlow::acceptTrackedPoint(int i)
+{
+	return status[i] && ((abs(points[0][i].x - points[1][i].x) + abs(points[0][i].y - points[1][i].y)) > 15);
+}
+
+
+bool OpticalFlow::isDroneAppear()
+{
+	if (10 * pointsNum > max_corners &&  1.5 * pointsNum < max_corners)
+	{
+		//if (motionObject.size.height*motionObject.size.width <= 8000)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
