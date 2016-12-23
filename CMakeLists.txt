@@ -3,7 +3,7 @@ project(cvReader)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -lpthread ")
 #
 #list(APPEND CMAKE_MODULE_PATH usr/share/OpenCV/
 #        )
@@ -37,6 +37,10 @@ target_link_libraries(gpu_test ${OpenCV_LIBS})
 
 add_executable(KF_test src/KF_test.cpp)
 target_link_libraries(KF_test ${OpenCV_LIBS})
+
+
+add_executable(Search src/enemy_search_main.cpp)
+target_link_libraries(Search ${OpenCV_LIBS})
 
 #add_executable(real_time_pose_estimation real_time_pose_estimation/src/main_detection.cpp)
 #target_link_libraries(real_time_pose_estimation ${OpenCV_LIBS})
