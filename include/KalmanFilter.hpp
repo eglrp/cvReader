@@ -46,8 +46,6 @@ namespace own{
             //ToDo:For test.
             InitialMatrix();
 
-
-
         }
 
         bool InitialState(Eigen::VectorXd state_vec)
@@ -99,14 +97,9 @@ namespace own{
             t_A(1,3) = time_step;
 
             X_ = (A_ ) * X_ ;
-//        std::cout << X_ << std::endl;
-
             P_ =  ( t_A) * P_ * (t_A.transpose().eval() *time_step)+ Q_;
-//        std::cout << P_ << std::endl;
 
             // Kalman gain
-//        std::cout << C_ << std::endl;
-//        std::cout << (C_ * P_ * C_.transpose().eval() + R_) << std::endl;
 
             K_ = P_ * C_.transpose().eval() * (C_ * P_ * C_.transpose().eval() + R_).inverse();
 
@@ -115,9 +108,6 @@ namespace own{
             Eigen::MatrixXd I;
             I.resizeLike(K_ * C_);
             I.setIdentity();
-//        std::cout << "I:" << I << std::endl;
-
-//        std::cout << "K:" << K_ << std::endl;
 
             P_ = (I - K_ * C_) * P_;
             X_ = X_ + K_*(observe_val - C_ * X_);
@@ -162,9 +152,6 @@ namespace own{
     private:
         Eigen::Matrix<T,state_num,1> predict_x_; // save state before compute prior and use to compute velocity after compute posterior.
         Eigen::Matrix<T,state_num,1> last_X_; // save state before compute prior and use to compute velocity after compute posterior.
-
-
-
 
 
     };
