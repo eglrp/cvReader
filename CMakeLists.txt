@@ -42,5 +42,7 @@ target_link_libraries(KF_test ${OpenCV_LIBS})
 add_executable(Search src/enemy_search_main.cpp)
 target_link_libraries(Search ${OpenCV_LIBS})
 
+add_executable(generate_marker src/create_marker.cpp)
+target_link_libraries(generate_marker ${OpenCV_LIBS})
 #add_executable(real_time_pose_estimation real_time_pose_estimation/src/main_detection.cpp)
 #target_link_libraries(real_time_pose_estimation ${OpenCV_LIBS})
