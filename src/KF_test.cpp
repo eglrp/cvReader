@@ -13,7 +13,6 @@
 
 #include "opencv2/opencv.hpp"
 
-#include "opencv2/opencv_modules.hpp"
 
 #include <random>
 
@@ -30,27 +29,16 @@
 
 
 int main() {
-//    std::cout << CV_VERSION << std::endl;
-//    std::default_random_engine e_;
-//    std::normal_distribution<> normal_distribution(0, 3.0);
-//
+
+
     own::KalmanFilter<double, 4, 2> kf_test(13.0, 3.0, Eigen::Vector4d(5.0, 5.0, 10.0, 10.0));
-//
-//    int j(0);
-//    for (int i(1); i < 1000; ++i) {
-//         j +=( 10+normal_distribution(e_));
-//
-//        double ti = double(i) + normal_distribution(e_);
-//        double tj = double(j) + normal_distribution(e_);
-//        Eigen::VectorXd tmp = kf_test.OneStep(Eigen::Vector2d(ti,
-//                                                              tj));
-
-
 
     ArCodePort ar_detect(cv::aruco::DICT_6X6_100);
 
+    cv::Mat src,result;
 
-    cv::VideoCapture capture("/dev/video0");
+    //////////////--------------------Open camera------------------
+    cv::VideoCapture capture("/dev/video1");
     if (!capture.isOpened()) {
         std::cout << "not opened:" << std::endl;
         cv::waitKey(1000);
@@ -60,12 +48,10 @@ int main() {
         std::cout << "opened " << std::endl;
     }
 
-
-    cv::Mat src, result;
-
-
     int dis_detect_num(DISTINCT_TIMES + 1);
 
+
+/////-------------tracker-----
     while (capture.isOpened()) {
         capture >> src;
 
@@ -127,7 +113,6 @@ int main() {
 
         cv::imshow("result", result);
         cv::waitKey(10);
-
 
     }
 
