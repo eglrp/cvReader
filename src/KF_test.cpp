@@ -32,6 +32,9 @@
 
 #define PREDICT_TIME_STEP 20
 
+int picth(0), yaw(0);
+
+
 int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
     int fd;
     bool true_false;
@@ -42,6 +45,36 @@ int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
         true_false = Serialport1.usart3_send(picth_angle, yaw_angle);
     close(fd);
     return true_false;
+}
+
+bool ImagePose2Angle(int p, int y) {
+
+    picth += (p/10);
+    yaw += (y/10);
+
+    if(picth > 240)
+    {
+        picth = 240;
+    }else if(picth < 0)
+    {
+        picth = 0;
+    }
+    if(yaw > 1600)
+    {
+        yaw = 1600;
+    }
+    if(yaw < 0)
+    {
+        yaw = 0;
+    }
+
+    uint16_t t_p,t_r;
+    t_p = uint16_t(picth);
+    t_r = uint16_t(yaw);
+    std::cout << "tp ty:"<< t_p << " " << t_r << std::endl;
+    SetAngle(t_p,t_r);
+
+    return true;
 }
 
 int main() {
@@ -109,8 +142,10 @@ int main() {
                 predict_state = kf_test.Predict(double(10));
                 std::cout << predict_state.transpose() << std::endl;
 
-                SetAngle(uint16_t(predict_state(0) - result.cols),
-                         uint16_t(predict_state(1) - result.rows));
+//                SetAngle(uint16_t(predict_state(0) - result.cols),
+//                         uint16_t(predict_state(1) - result.rows));
+                ImagePose2Angle((predict_state(0) - result.cols/2),
+                                (predict_state(1) - result.rows/2));
                 cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)), 20, cv::Scalar(20, 10, 200), 14);
 //                SetAngle(10,280);
 
@@ -127,8 +162,10 @@ int main() {
                 std::cout << predict_state.transpose() << std::endl;
 
 //                int16_t
-                SetAngle(uint16_t(predict_state(0) - result.cols),
-                         uint16_t(predict_state(1) - result.rows));
+//                SetAngle(uint16_t(predict_state(0) - result.cols),
+//                         uint16_t(predict_state(1) - result.rows));
+                ImagePose2Angle((predict_state(0) - result.cols/2),
+                                (predict_state(1) - result.rows/2));
 
                 cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)), 20, cv::Scalar(20, 10, 200), 14);
             }
@@ -140,7 +177,7 @@ int main() {
 
 
         cv::imshow("result", result);
-        cv::waitKey(10);
+        cv::waitKey(100);
 
     }
 
