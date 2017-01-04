@@ -28,11 +28,16 @@
 //#include "SerialSimple.hpp"
 #include "serialsom.h"
 
-#define DISTINCT_TIMES 1000
+#define DISTINCT_TIMES 18
 
 #define PREDICT_TIME_STEP 20
 
-int picth(0), yaw(0);
+int picth(150), yaw(800);
+
+double last_delta_p(0.0);
+double last_delta_y(0.0);
+
+//TODO: spline 1K,delta
 
 
 int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
@@ -49,28 +54,50 @@ int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
 
 bool ImagePose2Angle(int p, int y) {
 
-    picth += (p/10);
-    yaw += (y/10);
+//    picth += (p/13.0);//up and down
+//    yaw -= (y/13.0);//left and right
 
-    if(picth > 240)
+    /////picth
+    double delta_p = (p/13.0);
+
+    picth += delta_p*0.8 + delta_p-last_delta_p;
+
+
+    last_delta_p = delta_p;
+
+
+
+
+    ////yaw
+    double delta_yaw = (y/13.0);
+
+    yaw -= (delta_yaw * 0.8 + delta_yaw-last_delta_y);
+
+    last_delta_y = delta_yaw;
+
+
+    if(picth > 250)
     {
-        picth = 240;
-    }else if(picth < 0)
+        picth = 250;
+    }else if(picth < 50)
     {
-        picth = 0;
+        picth = 50;
     }
-    if(yaw > 1600)
+    if(yaw > 1400)
     {
-        yaw = 1600;
+        yaw = 1400;
     }
-    if(yaw < 0)
+    if(yaw < 200)
     {
-        yaw = 0;
+        yaw = 200;
     }
 
     uint16_t t_p,t_r;
     t_p = uint16_t(picth);
     t_r = uint16_t(yaw);
+
+//    t_p = t_p / 10 * 10;
+//    t_r = t_r /10 * 10;
     std::cout << "tp ty:"<< t_p << " " << t_r << std::endl;
     SetAngle(t_p,t_r);
 
@@ -80,7 +107,7 @@ bool ImagePose2Angle(int p, int y) {
 int main() {
 
 
-    own::KalmanFilter<double, 4, 2> kf_test(13.0, 3.0, Eigen::Vector4d(5.0, 5.0, 10.0, 10.0));
+    own::KalmanFilter<double, 4, 2> kf_test(5.0, 33.0, Eigen::Vector4d(5.0, 5.0, 10.0, 10.0));
 
     ArCodePort ar_detect(cv::aruco::DICT_6X6_100);
 
@@ -144,8 +171,8 @@ int main() {
 
 //                SetAngle(uint16_t(predict_state(0) - result.cols),
 //                         uint16_t(predict_state(1) - result.rows));
-                ImagePose2Angle((predict_state(0) - result.cols/2),
-                                (predict_state(1) - result.rows/2));
+                ImagePose2Angle((predict_state(1) - result.cols/2),
+                                (predict_state(0) - result.rows/2));
                 cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)), 20, cv::Scalar(20, 10, 200), 14);
 //                SetAngle(10,280);
 
@@ -164,9 +191,8 @@ int main() {
 //                int16_t
 //                SetAngle(uint16_t(predict_state(0) - result.cols),
 //                         uint16_t(predict_state(1) - result.rows));
-                ImagePose2Angle((predict_state(0) - result.cols/2),
-                                (predict_state(1) - result.rows/2));
-
+                ImagePose2Angle((predict_state(1) - result.cols/2),
+                                (predict_state(0) - result.rows/2));
                 cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)), 20, cv::Scalar(20, 10, 200), 14);
             }
 
