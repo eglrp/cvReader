@@ -28,18 +28,24 @@
 //#include "SerialSimple.hpp"
 #include "serialsom.h"
 
+#include <thread>
+#include <chrono>
+
 #define DISTINCT_TIMES 18
 
 #define PREDICT_TIME_STEP 20
 
 int picth(150), yaw(800);
 
+uint16_t dp(0),dy(0);
+bool IsSetDelta(false);
+
 double last_delta_p(0.0);
 double last_delta_y(0.0);
 
 //TODO: spline 1K,delta
 
-///
+
 
 int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
     int fd;
@@ -51,6 +57,18 @@ int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
         true_false = Serialport1.usart3_send(picth_angle, yaw_angle);
     close(fd);
     return true_false;
+}
+
+void SetDelta()
+{
+    if(IsSetDelta)
+    {
+
+        SetAngle(dp,dy);
+    }
+//    std::chrono::s
+
+    usleep(1000);
 }
 
 bool ImagePose2Angle(int p, int y) {
@@ -125,6 +143,7 @@ int main() {
         std::cout << "opened " << std::endl;
     }
 
+
     int dis_detect_num(DISTINCT_TIMES + 1);
 
     capture >> src;
@@ -133,6 +152,10 @@ int main() {
 //    SerialControl serialControl("/dev/ttyUSB0");
 //    serialControl.SetCameraCentre(src.rows/2,src.cols/2);
 
+    if(capture.isOpened())
+    {
+        IsSetDelta= true;
+    }
 
 /////-------------tracker-----
     while (capture.isOpened()) {
