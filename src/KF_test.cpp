@@ -63,7 +63,6 @@ void SetDelta()
 {
     if(IsSetDelta)
     {
-
         SetAngle(dp,dy);
     }
 //    std::chrono::s

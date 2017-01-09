@@ -1,9 +1,10 @@
 ﻿#include "myHead.hpp"
 #include <opencv2/opencv.hpp>
 #include "fstream"
-//#include "opticalFlow.h"
+#include "opticalFlow.h"
 #include "getConfig.h"
 #include <sstream>
+#include <string>
 #include <opticalFlow.h>
 
 #include "pthread.h"
@@ -11,8 +12,8 @@
 using namespace cv;
 using namespace std;
 
-#define IMAGE_WIDTH 640    //图像宽度
-#define IMAGE_HEIGHT 480   //图像高度
+#define IMAGE_WIDTH 1280    //图像宽度
+#define IMAGE_HEIGHT 720   //图像高度
 #define ZOOM_FACTOR 1      //为加快处理速度，对图像进行等比例缩小，此处为0.5倍
 #define DEBUG            //图像显示
 #define BLUE
@@ -39,7 +40,7 @@ map<string, string> config;
 #ifdef SEND_ANGLE
 double anglePitch = 0, angleYaw = 0;
 #else
-char regionNum[1] = { 0xFF };
+char *regionNum = new char[1];
 #endif
 
 void *sendData(void *)
@@ -144,8 +145,11 @@ void *droneDetect(void *)
 
 int main()
 {
-	ReadConfig("video.cfg", config);
-	int t = atoi(config["t"].c_str());
+	regionNum[0] = 0xFF;
+
+//	ReadConfig("video.cfg", config);
+//	int t = atoi(config["t"].c_str());]
+	int t(200);
 	VideoCapture cap(0);
 	//VideoCapture cap("D:\\基地\\西安交通\\45.avi");
 	//cap.set(CV_CAP_PROP_POS_FRAMES, 25*60);
@@ -178,8 +182,12 @@ int main()
 	Mat src, imgThresholded;
 	cap >> src;
 
-	Mat imgOriginal = src(Rect(0, (int)IMAGE_HEIGHT / 3, IMAGE_WIDTH, (int)IMAGE_HEIGHT * 2 / 3));
-	Rect roiImg = Rect(0, 0, imgOriginal.cols * ZOOM_FACTOR, imgOriginal.rows * ZOOM_FACTOR);
+	Mat imgOriginal = src(Rect(0,
+							   (int) IMAGE_HEIGHT / 3, IMAGE_WIDTH,
+							   (int) IMAGE_HEIGHT * 2 / 3));
+	Rect roiImg = Rect(0, 0,
+					   imgOriginal.cols * ZOOM_FACTOR,
+					   imgOriginal.rows * ZOOM_FACTOR);
 
 	vector<RotatedRect> vEllipse;//符合条件的椭圆
 	Armors armors(imgOriginal.cols*ZOOM_FACTOR, imgOriginal.rows*ZOOM_FACTOR);
@@ -198,8 +206,11 @@ int main()
 #ifndef DEBUG
 			writer << src;
 #endif // DEBUG
-			imgOriginal = src(Rect(0, (int)IMAGE_HEIGHT / 3, IMAGE_WIDTH, (int)IMAGE_HEIGHT * 2 / 3));
-			resize(imgOriginal, imgOriginal, Size(imgOriginal.cols * ZOOM_FACTOR, imgOriginal.rows * ZOOM_FACTOR));//等比例缩小
+			imgOriginal = src(Rect(0,
+								   (int) IMAGE_HEIGHT / 3, IMAGE_WIDTH,
+								   (int) IMAGE_HEIGHT * 2 / 3));
+			resize(imgOriginal, imgOriginal,
+				   Size(imgOriginal.cols * ZOOM_FACTOR, imgOriginal.rows * ZOOM_FACTOR));//等比例缩小
 			//imgOriginal -= Scalar(B,G,R);
 #ifndef DARK
 #ifdef BLUE
@@ -355,8 +366,8 @@ int main()
 #endif // LINUX
 	cap.~VideoCapture();
 	destroyAllWindows();
-	config["t"] = to_string(t);
-	WriteConfig("video.cfg", config);
+//	config["t"] = to_string(t);
+//	WriteConfig("video.cfg", config);
 	cout << "main pthread exit\n" << endl;
 	regionNum[0] = 0xf0;
 	return 0;

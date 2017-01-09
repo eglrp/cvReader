@@ -34,7 +34,7 @@ void Trim(string & str)
 			break;
 	}
 	if (i == str.size()) 
-	{ // È«²¿ÊÇ¿Õ°××Ö·û´®
+	{ // È«ï¿½ï¿½ï¿½Ç¿Õ°ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
 		str = "";
 		return;
 	}
@@ -59,15 +59,15 @@ bool AnalyseLine(const string & line, string & key, string & value)
 	if ((pos = line.find(COMMENT_CHAR)) != -1) 
 	{
 		if (0 == pos) 
-		{  // ÐÐµÄµÚÒ»¸ö×Ö·û¾ÍÊÇ×¢ÊÍ×Ö·û
+		{  // ï¿½ÐµÄµï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½Ö·ï¿½
 			return false;
 		}
 		end_pos = pos - 1;
 	}
-	string new_line = line.substr(start_pos, start_pos + 1 - end_pos);  // Ô¤´¦Àí£¬É¾³ý×¢ÊÍ²¿·Ö
+	string new_line = line.substr(start_pos, start_pos + 1 - end_pos);  // Ô¤ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½×¢ï¿½Í²ï¿½ï¿½ï¿½
 
 	if ((pos = new_line.find('=')) == -1)
-		return false;  // Ã»ÓÐ=ºÅ
+		return false;  // Ã»ï¿½ï¿½=ï¿½ï¿½
 
 	key = new_line.substr(0, pos);
 	value = new_line.substr(pos + 1, end_pos + 1 - (pos + 1));
@@ -80,7 +80,7 @@ bool AnalyseLine(const string & line, string & key, string & value)
 	return true;
 }
 
-bool ReadConfig(const string & filename, map<string, string> & m)
+bool ReadConfig(string filename, map<string, string> &m)
 {
 	m.clear();
 	ifstream infile(filename.c_str());

@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(cvReader)
 
-set(CMAKE_CXX_STANDARD 11)
+#set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -lpthread -lopencv_aruco")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3  -pthread -lopencv_aruco")
 #
 #list(APPEND CMAKE_MODULE_PATH usr/share/OpenCV/
 #        )
@@ -46,3 +46,5 @@ add_executable(generate_marker src/create_marker.cpp)
 target_link_libraries(generate_marker ${OpenCV_LIBS})
 #add_executable(real_time_pose_estimation real_time_pose_estimation/src/main_detection.cpp)
 #target_link_libraries(real_time_pose_estimation ${OpenCV_LIBS})
+add_executable(multikf src/MultiThreadKF.cpp)
+target_link_libraries(multikf ${OpenCV_LIBS})
