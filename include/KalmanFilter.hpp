@@ -6,6 +6,10 @@
 
 #include <Eigen/Dense>
 
+#include <thread>
+#include <mutex>
+
+
 #ifndef CVREADER_KALMANFILTER_HPP
 #define CVREADER_KALMANFILTER_HPP
 
@@ -13,7 +17,9 @@ namespace own{
     template <typename T,int state_num,int observe_num>
     class KalmanFilter{
     public:
-        KalmanFilter(T eval_sigma,T noise_sigma,Eigen::VectorXd state_sigma_vec)
+        KalmanFilter(T eval_sigma,
+                     T noise_sigma,
+                     Eigen::VectorXd state_sigma_vec)
         {
 
             //Check
@@ -152,6 +158,9 @@ namespace own{
     private:
         Eigen::Matrix<T,state_num,1> predict_x_; // save state before compute prior and use to compute velocity after compute posterior.
         Eigen::Matrix<T,state_num,1> last_X_; // save state before compute prior and use to compute velocity after compute posterior.
+
+
+
 
 
     };
