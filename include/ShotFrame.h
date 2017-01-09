@@ -53,6 +53,7 @@
 
 /**
  * Simple class for test and debug sub-function.
+ *
  */
 class ShotFrame {
 public:
@@ -87,7 +88,25 @@ protected:
 
     //////////////////DATA
 
-    std::atomic<int> delta_x, delta_y;//
+    std::atomic<int> delta_x_, delta_y_;//atomic data x,y offset from central point.
+
+    //////
+    std::atomic<double> pitch_, yaw_; // Current pose of the orientation.
+
+    std::mutex py_mutex_; //
+
+    //////
+    std::mutex serial_mutex_;
+
+    /////
+    int serial_handle_; // handle for serial com.
+
+    ////
+
+
+
+
+
 
 
 private:
