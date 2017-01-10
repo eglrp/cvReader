@@ -64,6 +64,14 @@ public:
      */
     ShotFrame(std::string video_id, std::string control_id);
 
+    /**
+     * Run, include three independent thread(VisionProcess,SerialBind & MachineControl).
+     */
+    void Run();
+
+
+
+
 protected:
 
     ////////////////FUNCTION
