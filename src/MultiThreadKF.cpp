@@ -51,5 +51,9 @@
 
 int main() {
 
+
+    ShotFrame sf("/dev/video1", "/dev/ttyUSB0");
+    sf.Run();
+
     return 0;
 }
