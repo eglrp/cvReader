@@ -20,7 +20,8 @@ public:
         dictionary_ptr_ =cv::Ptr<cv::aruco::Dictionary>(cv::aruco::getPredefinedDictionary(aruco_type)) ;
     }
 
-    int DetectMarkers(cv::Mat src_image,std::vector<std::vector<Point2f>> &corners,std::vector<int> &ids,cv::Mat *res)
+    int DetectMarkers(cv::Mat src_image, std::vector<std::vector<cv::Point2f>> &corners, std::vector<int> &ids,
+                      cv::Mat *res)
     {
 
         cv::aruco::detectMarkers(src_image,dictionary_ptr_,corners,ids);

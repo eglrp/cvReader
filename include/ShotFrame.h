@@ -44,12 +44,14 @@
 #include <random>
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/aruco>
+#include <opencv2/aruco.hpp>
 
 #include "ArCode.hpp"
 #include "serialsom.h" // TODO: rewrite this.
 
-#include "ShotFrame.h"
+//#include "ShotFrame.cpp"
+
+#include "KalmanFilter.hpp"
 
 /**
  * Simple class for test and debug sub-function.
@@ -103,8 +105,10 @@ protected:
 
 
     /////Exchange
-    std::atomic<int> delta_x_, delta_y_;//atomic data x,y offset from central point.
-    std::atomic<double> pitch_, yaw_; // Current pose of the orientation.
+//    std::atomic<int> delta_x_, delta_y_;//atomic data x,y offset from central point.
+//    std::atomic<double> pitch_, yaw_; // Current pose of the orientation.
+    int delta_x_, delta_y_;
+    double pitch_, yaw_;
 
     std::mutex py_mutex_; //
     std::mutex serial_mutex_;
@@ -126,6 +130,8 @@ protected:
     //Some important parameters.
     long double refresh_time_;
 
+    double predict_time_step_;//
+
 
 
 
@@ -143,5 +149,125 @@ private:
 
 };
 
+ShotFrame::ShotFrame(std::string video_id, std::string control_id) :
+        serial_handle_(const_cast<char *>(control_id.c_str())),
+        kf_(5.0, 33.0, Eigen::Vector4d(5.0, 5.0, 10.0, 10.0)) {
+
+//    kf_ = own::KalmanFilter<double,4,2>;
+    delta_x_ = 0;
+    delta_y_ = 0;
+
+    pitch_ = 0;
+    yaw_ = 0;
+
+
+
+    /**
+     * Open device port.
+     */
+    //TODO: Neet a completed method to finish this open port process.
+//    serial_handle_ = open(control_id.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+//    if (isatty(serial_handle_) == 0) {
+//        std::cout << "Standard inpute is not a termianl device!" << std::endl;
+//
+//    }
+    serial_handle_.open_port(const_cast<char *>(control_id.c_str()));//TODO: Just for test.
+
+    shot_cap_.open(video_id);
+    if (!shot_cap_.isOpened()) {
+        cv::waitKey(100);
+        shot_cap_.open(0);
+
+    }
+
+}
+
+void ShotFrame::Run() {
+    /**
+    * Start thread.
+    */
+
+    std::thread vp(&ShotFrame::VisionProcess, this);
+    vp.detach();
+
+    std::thread sb(&ShotFrame::SerialBind, this);
+    sb.detach();
+
+    std::thread mc(&ShotFrame::MachineControl, this);
+    mc.detach();
+}
+
+void ShotFrame::VisionProcess() {
+
+    cv::namedWindow(win_name_, cv::WINDOW_AUTOSIZE);
+//    createTrackbar("t", , &t, 256, 0);
+    int refresh_tmp_int;
+
+    cv::createTrackbar("refresh time", win_name_, &refresh_tmp_int, 1000, 0);
+
+
+    ArCodePort detect(cv::aruco::DICT_6X6_100);
+
+    std::vector<int> markerIds;
+    std::vector<std::vector<cv::Point2f>> markerCorners;
+    while (shot_cap_.isOpened() && IsRun) {
+
+        refresh_time_ = refresh_tmp_int / 500;
+
+        shot_cap_ >> in_mat_;
+
+        markerIds.clear();
+        markerCorners.clear();
+
+
+        if (detect.DetectMarkers(in_mat_, markerCorners, markerIds, &out_mat_) > 0) {
+
+            cv::Point2f current_point = markerCorners.at(0).at(0);
+            long double the_time(now());
+            if (the_time - last_time_ > refresh_time_) {
+                kf_.InitialState(
+                        Eigen::VectorXd(Eigen::Vector4d(double(current_point.x), double(current_point.y), 0.0, 0.0))
+                );
+                out_mat_ = in_mat_;
+
+            } else {
+                Eigen::VectorXd state = kf_.OneStep(
+                        Eigen::Vector2d(double(current_point.x), double(current_point.y)),
+                        double(the_time - last_time_));
+                cv::circle(out_mat_, cv::Point2f(state(0), state(1)), 20, cv::Scalar(20, 210, 20), 14);
+            }
+
+
+            last_time_ = the_time;
+
+
+        } else {
+            out_mat_ = in_mat_;
+        }
+
+        cv::imshow(win_name_, out_mat_);
+
+
+    }
+
+}
+
+
+void ShotFrame::MachineControl() {
+    sleep(2);//Sleep 2 seconds wait for VisionProcess run;
+
+    while (IsRun) {
+        Eigen::VectorXd pre_state = kf_.Predict(predict_time_step_);
+//        serial_handle_.sendAngle()
+        serial_handle_.usart3_send(pre_state(0) - in_mat_.cols / 2, pre_state(1) - in_mat_.rows / 2);
+        usleep(1000);
+    }
+}
+
+void ShotFrame::SerialBind() {
+    while (1) {
+        sleep(10);
+    }
+}
 
 #endif //CVREADER_SHOTFRAME_H

@@ -23,7 +23,8 @@ using namespace std;
 class Serialport
 {
 public:
-        Serialport(char *port);//定义Serialport类的成员函数，
+    Serialport(char *port);//定义Serialport类的成员函数，
+
 
         ~ Serialport();
         int open_port(char *port); //

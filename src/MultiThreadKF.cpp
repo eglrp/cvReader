@@ -42,7 +42,7 @@
 #include <random>
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/aruco>
+#include <opencv2/aruco.hpp>
 
 #include "ArCode.hpp"
 #include "serialsom.h" // TODO: rewrite this.
@@ -52,7 +52,9 @@
 int main() {
 
 
-    ShotFrame sf("/dev/video1", "/dev/ttyUSB0");
+    std::string a("/dev/video1"), b("/dev/ttyUSB0");
+//    ShotFrame sf("/dev/video1", "/dev/ttyUSB0");
+    ShotFrame sf(a, b);
     sf.Run();
 
     return 0;
