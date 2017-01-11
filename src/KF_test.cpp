@@ -68,6 +68,7 @@ void SetDelta()
 //    std::chrono::s
 
     usleep(1000);
+    return;
 }
 
 bool ImagePose2Angle(int p, int y) {
@@ -146,6 +147,9 @@ int main() {
     int dis_detect_num(DISTINCT_TIMES + 1);
 
     capture >> src;
+
+    std::thread sendangle(SetDelta);
+    sendangle.detach();
 
 
 //    SerialControl serialControl("/dev/ttyUSB0");
@@ -226,7 +230,7 @@ int main() {
 
 
         cv::imshow("result", result);
-        cv::waitKey(100);
+        cv::waitKey(10);
 
     }
 
