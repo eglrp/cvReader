@@ -112,6 +112,7 @@ protected:
 
     std::mutex py_mutex_; //
     std::mutex serial_mutex_;
+    std::mutex pre_mutex_;
 
     /////SerialBind() and Machine Control()
     Serialport serial_handle_; // handle for serial com.
@@ -131,6 +132,8 @@ protected:
     long double refresh_time_;
 
     double predict_time_step_;//
+
+    double time_scalar_;
 
 
 
@@ -205,11 +208,13 @@ void ShotFrame::VisionProcess() {
 
     cv::namedWindow(win_name_, cv::WINDOW_AUTOSIZE);
 //    createTrackbar("t", , &t, 256, 0);
-    int refresh_tmp_int(10);
-    int time_length(20);
+    int refresh_tmp_int(500);
+    int time_length(120);
+    int time_scalar(100);
 
     cv::createTrackbar("refresh time", win_name_, &refresh_tmp_int, 1000, 0);
     cv::createTrackbar("time length", win_name_, &time_length, 1000, 0);
+    cv::createTrackbar("time_scalar", win_name_, &time_scalar, 1000, 0);
 
     //TODO: add predict time length.
 
@@ -220,8 +225,9 @@ void ShotFrame::VisionProcess() {
     std::vector<std::vector<cv::Point2f>> markerCorners;
     while (shot_cap_.isOpened() && IsRun) {
 
-        refresh_time_ = double(refresh_tmp_int) / 500.0;
-        predict_time_step_ = double(time_length) / 500.0;
+        refresh_time_ = double(refresh_tmp_int) / 200.0;
+        predict_time_step_ = double(time_length) / 200.0;
+        time_scalar_ = double(time_scalar) / 10;
 
         shot_cap_ >> in_mat_;
 
@@ -242,7 +248,7 @@ void ShotFrame::VisionProcess() {
             } else {
                 Eigen::VectorXd state = kf_.OneStep(
                         Eigen::Vector2d(double(current_point.x), double(current_point.y)),
-                        double(the_time - last_time_));
+                        double(the_time - last_time_) * time_scalar_);
                 cv::circle(out_mat_, cv::Point2f(state(0), state(1)), 20, cv::Scalar(20, 210, 20), 14);
             }
 
@@ -254,6 +260,11 @@ void ShotFrame::VisionProcess() {
             out_mat_ = in_mat_;
         }
 //        std::cout << "now:"<<now() << std::endl;
+        pre_mutex_.lock();
+        cv::Point2f tmp(delta_x_, delta_y_);
+        pre_mutex_.unlock();
+
+        cv::circle(out_mat_, tmp, 20, cv::Scalar(20, 20, 220), 13);
 
         cv::imshow(win_name_, out_mat_);
         cv::waitKey(10);
@@ -268,12 +279,14 @@ void ShotFrame::MachineControl() {
     sleep(2);//Sleep 2 seconds wait for VisionProcess run;
 
     while (IsRun) {
-        Eigen::VectorXd pre_state = kf_.Predict(predict_time_step_);
+        Eigen::VectorXd pre_state = kf_.Predict((predict_time_step_ + now() - last_time_) * time_scalar_);
 //        serial_handle_.sendAngle()
         serial_handle_.usart3_send(pre_state(0) - in_mat_.cols / 2, pre_state(1) - in_mat_.rows / 2);
+        pre_mutex_.lock();
         delta_x_ = pre_state(0);
         delta_y_ = pre_state(1);
-        usleep(1000);
+        pre_mutex_.unlock();
+        usleep(10000);
     }
 }
 
