@@ -197,6 +197,33 @@ namespace own {
             return predict_x_;
         }
 
+        bool setNoiseSigma(double noise_sigma) {
+            if (abs(noise_sigma - Q_(0, 0)) < 0.01) {
+                return true;
+            }
+            data_process_mutex_.lock();
+            Q_.setIdentity();
+            Q_ = Q_ * noise_sigma;
+            data_process_mutex_.unlock();
+
+
+        }
+
+        bool setEvaluSigma(double eval_sigma) {
+            if (abs(eval_sigma - R_(0, 0)) < 0.01) {
+                return true;
+            }
+
+            data_process_mutex_.lock();
+            R_.setIdentity();
+            R_ = R_ * eval_sigma;
+            data_process_mutex_.unlock();
+            return (true);
+        }
+
+
+
+
     protected:
         Eigen::Matrix<T, state_num, state_num> Q_;//process noise
 

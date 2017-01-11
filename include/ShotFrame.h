@@ -206,15 +206,29 @@ void ShotFrame::Run() {
 
 void ShotFrame::VisionProcess() {
 
+
+    /**
+     * DEBUG and search parameters.
+     */
     cv::namedWindow(win_name_, cv::WINDOW_AUTOSIZE);
 //    createTrackbar("t", , &t, 256, 0);
     int refresh_tmp_int(500);
     int time_length(120);
     int time_scalar(100);
 
+    int eval_sigma(100);
+    int noise_sigma(100);
+
     cv::createTrackbar("refresh time", win_name_, &refresh_tmp_int, 1000, 0);
     cv::createTrackbar("time length", win_name_, &time_length, 1000, 0);
     cv::createTrackbar("time_scalar", win_name_, &time_scalar, 1000, 0);
+
+    cv::createTrackbar("eval sigma", win_name_, &eval_sigma, 1000, 0);
+    cv::createTrackbar("noise sigma ", win_name_, &noise_sigma, 1000, 0);
+
+    /**
+     * End DEBUG and search parameters.
+     */
 
     //TODO: add predict time length.
 
@@ -225,9 +239,20 @@ void ShotFrame::VisionProcess() {
     std::vector<std::vector<cv::Point2f>> markerCorners;
     while (shot_cap_.isOpened() && IsRun) {
 
+
+        /**
+         * DEBUG and search parameters.
+         */
         refresh_time_ = double(refresh_tmp_int) / 200.0;
         predict_time_step_ = double(time_length) / 200.0;
         time_scalar_ = double(time_scalar) / 10;
+
+        kf_.setEvaluSigma(double(eval_sigma) / 50);
+        kf_.setNoiseSigma(double(noise_sigma) / 50);
+
+        /**
+         * End DEBUG and search parameters.
+         */
 
         shot_cap_ >> in_mat_;
 
