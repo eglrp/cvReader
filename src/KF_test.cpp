@@ -65,6 +65,8 @@ void SetDelta()
         if (IsSetDelta) {
             SetAngle(dp, dy);
             usleep(1000);
+
+            
         }
     }
 
