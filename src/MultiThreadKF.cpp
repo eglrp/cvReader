@@ -57,5 +57,10 @@ int main() {
     ShotFrame sf(a, b);
     sf.Run();
 
+    while (1) {
+
+    }
+
+
     return 0;
 }

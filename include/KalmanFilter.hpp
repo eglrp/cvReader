@@ -189,8 +189,8 @@ namespace own {
             t_A(0, 2) = time_step;
             t_A(1, 3) = time_step;
             predict_x_ = (t_A) * X_;
-            std::cout << "x:" << X_.transpose()
-                      << "pre:" << predict_x_.transpose() << std::endl;
+//            std::cout << "x:" << X_.transpose()
+//                      << "pre:" << predict_x_.transpose() << std::endl;
 
             data_process_mutex_.unlock();
 

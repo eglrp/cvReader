@@ -187,6 +187,8 @@ void ShotFrame::Run() {
     * Start thread.
     */
 
+    std::cout << "Run." << std::endl;
+
     std::thread vp(&ShotFrame::VisionProcess, this);
     vp.detach();
 
@@ -195,15 +197,21 @@ void ShotFrame::Run() {
 
     std::thread mc(&ShotFrame::MachineControl, this);
     mc.detach();
+
+    std::cout << "Run ok!" << std::endl;
 }
 
 void ShotFrame::VisionProcess() {
 
     cv::namedWindow(win_name_, cv::WINDOW_AUTOSIZE);
 //    createTrackbar("t", , &t, 256, 0);
-    int refresh_tmp_int;
+    int refresh_tmp_int(10);
+    int time_length(20);
 
     cv::createTrackbar("refresh time", win_name_, &refresh_tmp_int, 1000, 0);
+    cv::createTrackbar("time length", win_name_, &time_length, 1000, 0);
+
+    //TODO: add predict time length.
 
 
     ArCodePort detect(cv::aruco::DICT_6X6_100);
@@ -212,7 +220,8 @@ void ShotFrame::VisionProcess() {
     std::vector<std::vector<cv::Point2f>> markerCorners;
     while (shot_cap_.isOpened() && IsRun) {
 
-        refresh_time_ = refresh_tmp_int / 500;
+        refresh_time_ = double(refresh_tmp_int) / 500.0;
+        predict_time_step_ = double(time_length) / 500.0;
 
         shot_cap_ >> in_mat_;
 
@@ -244,8 +253,10 @@ void ShotFrame::VisionProcess() {
         } else {
             out_mat_ = in_mat_;
         }
+//        std::cout << "now:"<<now() << std::endl;
 
         cv::imshow(win_name_, out_mat_);
+        cv::waitKey(10);
 
 
     }

@@ -66,7 +66,7 @@ void SetDelta()
             SetAngle(dp, dy);
             usleep(1000);
 
-            
+
         }
     }
 
@@ -241,7 +241,7 @@ int main() {
 
 
         cv::imshow("result", result);
-        cv::waitKey(1);
+        cv::waitKey(10);
 
     }
 
