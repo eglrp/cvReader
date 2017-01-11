@@ -95,27 +95,50 @@ protected:
 
 
     //////////////////DATA
+    /////Very Important Flag
+    bool IsRun = true;//All thread will exit if this flag equal to false.
 
+//    /////thread
+//    std::thread
+
+
+    /////Exchange
     std::atomic<int> delta_x_, delta_y_;//atomic data x,y offset from central point.
-
-    //////
     std::atomic<double> pitch_, yaw_; // Current pose of the orientation.
 
     std::mutex py_mutex_; //
-
-    //////
     std::mutex serial_mutex_;
 
-    /////
-    int serial_handle_; // handle for serial com.
+    /////SerialBind() and Machine Control()
+    Serialport serial_handle_; // handle for serial com.
 
-    /////
-    
+    /////VisionProcess
+    cv::VideoCapture shot_cap_;
+    own::KalmanFilter<double, 4, 2> kf_;
+
+    cv::Mat in_mat_, out_mat_;
+
+    long double last_time_ = 0.0;
+
+    std::string win_name_ = "cv_debug";
+
+
+    //Some important parameters.
+    long double refresh_time_;
+
 
 
 
 
 private:
+    //Tool Function
+    long double now() {
+        auto tt = std::chrono::system_clock::now();
+        auto t_nanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(tt.time_since_epoch());
+
+        double time_now(double(t_nanosec.count()) * 1e-9);
+        return time_now;
+    }
 
 
 };

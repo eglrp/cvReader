@@ -38,7 +38,7 @@
 int picth(150), yaw(800);
 
 uint16_t dp(0),dy(0);
-bool IsSetDelta(false);
+bool IsSetDelta(true);
 
 double last_delta_p(0.0);
 double last_delta_y(0.0);
@@ -61,13 +61,16 @@ int SetAngle(uint16_t picth_angle, uint16_t yaw_angle) {
 
 void SetDelta()
 {
-    if(IsSetDelta)
-    {
-        SetAngle(dp,dy);
+    while (1) {
+        if (IsSetDelta) {
+            SetAngle(dp, dy);
+            usleep(1000);
+        }
     }
+
 //    std::chrono::s
 
-    usleep(1000);
+//    usleep(1000);
     return;
 }
 
@@ -198,8 +201,10 @@ int main() {
 
 //                SetAngle(uint16_t(predict_state(0) - result.cols),
 //                         uint16_t(predict_state(1) - result.rows));
-                ImagePose2Angle((predict_state(1) - result.cols/2),
-                                (predict_state(0) - result.rows/2));
+//                ImagePose2Angle((predict_state(1) - result.cols/2),
+//                                (predict_state(0) - result.rows/2));
+                dp = predict_state(0) - result.cols / 2;
+                dy = predict_state(1) - result.rows / 2;
                 cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)), 20, cv::Scalar(20, 10, 200), 14);
 //                SetAngle(10,280);
 
@@ -218,9 +223,13 @@ int main() {
 //                int16_t
 //                SetAngle(uint16_t(predict_state(0) - result.cols),
 //                         uint16_t(predict_state(1) - result.rows));
-                ImagePose2Angle((predict_state(1) - result.cols/2),
-                                (predict_state(0) - result.rows/2));
-                cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)), 20, cv::Scalar(20, 10, 200), 14);
+//                ImagePose2Angle((predict_state(1) - result.cols/2),
+//                                (predict_state(0) - result.rows/2));
+
+                dp = predict_state(0) - result.cols / 2;
+                dy = predict_state(1) - result.rows / 2;
+                cv::circle(result, cv::Point2f(predict_state(0), predict_state(1)),
+                           20, cv::Scalar(20, 10, 200), 14);
             }
 
             ++dis_detect_num;
@@ -230,7 +239,7 @@ int main() {
 
 
         cv::imshow("result", result);
-        cv::waitKey(10);
+        cv::waitKey(1);
 
     }
 
