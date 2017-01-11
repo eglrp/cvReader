@@ -271,6 +271,8 @@ void ShotFrame::MachineControl() {
         Eigen::VectorXd pre_state = kf_.Predict(predict_time_step_);
 //        serial_handle_.sendAngle()
         serial_handle_.usart3_send(pre_state(0) - in_mat_.cols / 2, pre_state(1) - in_mat_.rows / 2);
+        delta_x_ = pre_state(0);
+        delta_y_ = pre_state(1);
         usleep(1000);
     }
 }
