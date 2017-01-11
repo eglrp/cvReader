@@ -197,6 +197,11 @@ namespace own {
             return predict_x_;
         }
 
+        /**
+         * Set noise sigma.
+         * @param noise_sigma
+         * @return
+         */
         bool setNoiseSigma(double noise_sigma) {
             if (abs(noise_sigma - Q_(0, 0)) < 0.01) {
                 return true;
@@ -205,10 +210,16 @@ namespace own {
             Q_.setIdentity();
             Q_ = Q_ * noise_sigma;
             data_process_mutex_.unlock();
+            return true;
 
 
         }
 
+        /**
+         * Set evaluation sigma.
+         * @param eval_sigma
+         * @return
+         */
         bool setEvaluSigma(double eval_sigma) {
             if (abs(eval_sigma - R_(0, 0)) < 0.01) {
                 return true;

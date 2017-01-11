@@ -141,6 +141,12 @@ protected:
 
 private:
     //Tool Function
+
+    /**
+     * Use the high accuracy clock in c++11.
+     * quick and multi-thread safety.
+     * @return
+     */
     long double now() {
         auto tt = std::chrono::system_clock::now();
         auto t_nanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(tt.time_since_epoch());
@@ -261,16 +267,18 @@ void ShotFrame::VisionProcess() {
 
 
         if (detect.DetectMarkers(in_mat_, markerCorners, markerIds, &out_mat_) > 0) {
-
+            // Find target in camera.
             cv::Point2f current_point = markerCorners.at(0).at(0);
             long double the_time(now());
             if (the_time - last_time_ > refresh_time_) {
+
                 kf_.InitialState(
                         Eigen::VectorXd(Eigen::Vector4d(double(current_point.x), double(current_point.y), 0.0, 0.0))
                 );
                 out_mat_ = in_mat_;
 
             } else {
+
                 Eigen::VectorXd state = kf_.OneStep(
                         Eigen::Vector2d(double(current_point.x), double(current_point.y)),
                         double(the_time - last_time_) * time_scalar_);
@@ -289,6 +297,7 @@ void ShotFrame::VisionProcess() {
         cv::Point2f tmp(delta_x_, delta_y_);
         pre_mutex_.unlock();
 
+        //draw a circle in image represent the prediction state.
         cv::circle(out_mat_, tmp, 20, cv::Scalar(20, 20, 220), 13);
 
         cv::imshow(win_name_, out_mat_);
