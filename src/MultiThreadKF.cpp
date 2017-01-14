@@ -52,7 +52,7 @@
 int main() {
 
 
-    std::string a("/dev/video1"), b("/dev/ttyUSB0");
+    std::string a("/dev/video0"), b("/dev/ttyUSB0");
 //    ShotFrame sf("/dev/video1", "/dev/ttyUSB0");
     ShotFrame sf(a, b);
     sf.Run();

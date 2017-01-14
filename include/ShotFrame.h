@@ -300,6 +300,7 @@ void ShotFrame::VisionProcess() {
         //draw a circle in image represent the prediction state.
         cv::circle(out_mat_, tmp, 20, cv::Scalar(20, 20, 220), 13);
 
+
         cv::imshow(win_name_, out_mat_);
         cv::waitKey(10);
 
@@ -315,7 +316,9 @@ void ShotFrame::MachineControl() {
     while (IsRun) {
         Eigen::VectorXd pre_state = kf_.Predict((predict_time_step_ + now() - last_time_) * time_scalar_);
 //        serial_handle_.sendAngle()
+        serial_mutex_.lock();
         serial_handle_.usart3_send(pre_state(0) - in_mat_.cols / 2, pre_state(1) - in_mat_.rows / 2);
+        serial_mutex_.unlock();
         pre_mutex_.lock();
         delta_x_ = pre_state(0);
         delta_y_ = pre_state(1);
@@ -326,7 +329,32 @@ void ShotFrame::MachineControl() {
 
 void ShotFrame::SerialBind() {
     while (1) {
-        sleep(10);
+        char *data = new char[1024];
+        int len(0);
+        ///Read data from serial com.
+        serial_mutex_.lock();
+        len = serial_handle_.UART0_Recv(data, 1024);
+        serial_mutex_.unlock();
+
+        if (len > 0) {
+            for (int i(0); i < len - 7; ++i) {
+                if (data[i] == (0xaa) && data[i + 1] == (0xab)) {
+                    int16_t *p;
+
+                    py_mutex_.lock();
+
+                    p = (int16_t *) data + 2;
+                    pitch_ = *p;
+                    p = (int16_t *) data + 4;
+                    yaw_ = *p;
+
+                    py_mutex_.unlock();
+
+                    break;
+                }
+            }
+        }
+        usleep(10000);
     }
 }
 
