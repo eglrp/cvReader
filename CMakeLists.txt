@@ -49,3 +49,7 @@ target_link_libraries(generate_marker ${OpenCV_LIBS})
 #target_link_libraries(real_time_pose_estimation ${OpenCV_LIBS})
 add_executable(multikf src/MultiThreadKF.cpp)
 target_link_libraries(multikf ${OpenCV_LIBS})
+
+
+add_executable(DetectorMethodTest src/DetecterMethondTest.cpp)
+target_link_libraries(DetectorMethodTest ${OpenCV_LIBS})
