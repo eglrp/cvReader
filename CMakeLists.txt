@@ -53,3 +53,7 @@ target_link_libraries(multikf ${OpenCV_LIBS})
 
 add_executable(DetectorMethodTest src/DetecterMethondTest.cpp)
 target_link_libraries(DetectorMethodTest ${OpenCV_LIBS})
+
+
+add_executable(Test_search src/thrid_main.cpp)
+target_link_libraries(Test_search ${OpenCV_LIBS})

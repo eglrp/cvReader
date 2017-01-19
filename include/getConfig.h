@@ -1,9 +1,9 @@
 /****************************************************************************
-*   ×÷Õß:  jasitzhang(ÕÅÌÎ)
-*   ÐÞ¸Ä£º ÀîÏþ¶«  2016-07-28
-*   ÈÕÆÚ:  2011-10-2
-*   Ä¿µÄ:  ¶ÁÈ¡ÅäÖÃÎÄ¼þµÄÐÅÏ¢£¬ÒÔmapµÄÐÎÊ½´æÈë
-*   ÒªÇó:  ÅäÖÃÎÄ¼þµÄ¸ñÊ½£¬ÒÔ#×÷ÎªÐÐ×¢ÊÍ£¬ÅäÖÃµÄÐÎÊ½ÊÇkey = value£¬ÖÐ¼ä¿ÉÓÐ¿Õ¸ñ£¬Ò²¿ÉÃ»ÓÐ¿Õ¸ñ
+*   ï¿½ï¿½ï¿½ï¿½:  jasitzhang(ï¿½ï¿½ï¿½ï¿½)
+*   ï¿½Þ¸Ä£ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  2016-07-28
+*   ï¿½ï¿½ï¿½ï¿½:  2011-10-2
+*   Ä¿ï¿½ï¿½:  ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½mapï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½
+*   Òªï¿½ï¿½:  ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ä¸ï¿½Ê½ï¿½ï¿½ï¿½ï¿½#ï¿½ï¿½Îªï¿½ï¿½×¢ï¿½Í£ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ê½ï¿½ï¿½key = valueï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½Ð¿Õ¸ï¿½Ò²ï¿½ï¿½Ã»ï¿½Ð¿Õ¸ï¿½
 *****************************************************************************/
 #ifndef _GET_CONFIG_H_
 #define _GET_CONFIG_H_
@@ -14,8 +14,114 @@ using namespace std;
 
 #define COMMENT_CHAR '#'
 
-bool ReadConfig(const string & filename, map<string, string> & m);
+//bool ReadConfig(const string & filename, map<string, string> & m);
 bool WriteConfig(const string & filename, map<string, string> & m);
 void PrintConfig(const map<string, string> & m);
 
+bool IsSpace(char c) {
+    if (' ' == c || '\t' == c)
+        return true;
+    return false;
+}
+
+bool IsCommentChar(char c) {
+    switch (c) {
+        case COMMENT_CHAR://COMMENT_CHAR is '#'
+            return true;
+        default:
+            return false;
+    }
+}
+
+void Trim(string &str) {
+    if (str.empty())
+        return;
+
+    int i, start_pos, end_pos;
+    for (i = 0; i < str.size(); ++i) {
+        if (!IsSpace(str[i]))
+            break;
+    }
+    if (i == str.size()) { // È«ï¿½ï¿½ï¿½Ç¿Õ°ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
+        str = "";
+        return;
+    }
+
+    start_pos = i;
+
+    for (i = str.size() - 1; i >= 0; --i) {
+        if (!IsSpace(str[i]))
+            break;
+    }
+    end_pos = i;
+
+    str = str.substr(start_pos, end_pos - start_pos + 1);
+}
+
+bool AnalyseLine(const string &line, string &key, string &value) {
+    if (line.empty())
+        return false;
+    int start_pos = 0, end_pos = line.size() - 1, pos;
+    if ((pos = line.find(COMMENT_CHAR)) != -1) {
+        if (0 == pos) {  // ï¿½ÐµÄµï¿½Ò»ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½Ö·ï¿½
+            return false;
+        }
+        end_pos = pos - 1;
+    }
+    string new_line = line.substr(start_pos, start_pos + 1 - end_pos);  // Ô¤ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½×¢ï¿½Í²ï¿½ï¿½ï¿½
+
+    if ((pos = new_line.find('=')) == -1)
+        return false;  // Ã»ï¿½ï¿½=ï¿½ï¿½
+
+    key = new_line.substr(0, pos);
+    value = new_line.substr(pos + 1, end_pos + 1 - (pos + 1));
+
+    Trim(key);
+    if (key.empty())
+        return false;
+
+    Trim(value);
+    return true;
+}
+
+bool ReadConfig(string filename, map<string, string> &m) {
+    m.clear();
+    ifstream infile(filename.c_str());
+    if (!infile) {
+        cout << "file open error" << endl;
+        return false;
+    }
+    string line, key, value;
+    while (getline(infile, line)) {
+        if (AnalyseLine(line, key, value))
+            m[key] = value;
+    }
+
+    infile.close();
+    return true;
+}
+
+bool WriteConfig(const string &filename, map<string, string> &m) {
+    ofstream outfile(filename.c_str());
+    if (!outfile) {
+        cout << "config file write error" << endl;
+        return false;
+    }
+
+    for (auto mite = m.begin(); mite != m.end(); ++mite) {
+        outfile << mite->first << "=" << mite->second << endl;
+
+    }
+
+    outfile.close();
+    return true;
+}
+
+
+void PrintConfig(const map<string, string> &m) {
+    map<string, string>::const_iterator mite = m.begin();
+    for (; mite != m.end(); ++mite) {
+        cout << mite->first << "=" << mite->second << endl;
+    }
+}
 #endif

@@ -8,7 +8,10 @@
 
 #define Width 640
 #define Height 480
-
+#define MaxContourArea 450        // 面积大于该值的轮廓不是装甲的灯条
+#define MinContourArea 20        // 面积小于该值的轮廓不是装甲的灯条
+#define RED 0                    // 0代表红色
+#define BLUE 1                    // 1代表蓝色
 int main() {
 
 
@@ -17,14 +20,16 @@ int main() {
     std::string win_name("detector_test");
     std::string dis_name("distance_win");
     std::string dark_name("dark_win");
+    std::string color_name("color_search");
 
 
     cv::namedWindow(win_name);
     cv::namedWindow(dis_name);
     cv::namedWindow(dark_name);
+    cv::namedWindow(color_name);
 
 
-    int threold_value(100);
+    int threold_value(200);
     cv::createTrackbar("threold", win_name, &threold_value, 255, 0);
 
     int threold_dark(200);
@@ -83,39 +88,50 @@ int main() {
         capR >> imgR;
         capL >> imgL;
 
-        cv::remap(imgL, imgL, stereoVision.mapLx, stereoVision.mapLy, INTER_LINEAR);
-        cv::remap(imgR, imgR, stereoVision.mapRx, stereoVision.mapRy, INTER_LINEAR);
+//        cv::remap(imgL, imgL, stereoVision.mapLx, stereoVision.mapLy, INTER_LINEAR);
+//        cv::remap(imgR, imgR, stereoVision.mapRx, stereoVision.mapRy, INTER_LINEAR);
+//        cv::cvtColor(imgL, grayL, cv::COLOR_BGR2GRAY);
+//        cv::cvtColor(imgR, grayR, cv::COLOR_BGR2GRAY);
+//
+//
+//        cv::cvtColor(imgL, imgL, cv::COLOR_BGR2HLS);
+//        cv::split(imgL, hsvL);
+//        cv::split(imgR, hslL);
+//
+//
+//
+//        cv::cvtColor(imgL, darkimg, cv::COLOR_BGR2GRAY);
+//
+//        darkimg = 255 - darkimg;
+//        cv::threshold(darkimg, darkimg, double(threold_dark), 255, cv::THRESH_BINARY);
+//
+//        cv::threshold(grayL, grayL, double(threold_value), 255, cv::THRESH_BINARY);
+//        cv::threshold(grayR, grayR, double(threold_value), 255, cv::THRESH_BINARY);
+//
+//        stereoVision.stereoMatch(grayL, grayR);
+//
+//        stereoVision.getDisparityImage(distimg);
+//
+//
+////        cv::threshold(vMat,vMat,)
+//        lMat = 255 - lMat;
+//        cv::threshold(lMat, lMat, double(threold_dark), 255, cv::THRESH_BINARY);
+//
+//        cv::morphologyEx(lMat, lMat, cv::MORPH_OPEN, element);
 
-        cv::cvtColor(imgL, imgL, cv::COLOR_BGR2HLS);
-        cv::split(imgL, hsvL);
-        cv::split(imgR, hslL);
-
-        cv::cvtColor(imgL, grayL, cv::COLOR_BGR2GRAY);
-        cv::cvtColor(imgR, grayR, cv::COLOR_BGR2GRAY);
-
-        cv::cvtColor(imgL, darkimg, cv::COLOR_BGR2GRAY);
-
-        darkimg = 255 - darkimg;
-        cv::threshold(darkimg, darkimg, double(threold_dark), 255, cv::THRESH_BINARY);
-
-        cv::threshold(grayL, grayL, double(threold_value), 255, cv::THRESH_BINARY);
-        cv::threshold(grayR, grayR, double(threold_value), 255, cv::THRESH_BINARY);
-
-        stereoVision.stereoMatch(grayL, grayR);
-
-        stereoVision.getDisparityImage(distimg);
 
 
-//        cv::threshold(vMat,vMat,)
-        lMat = 255 - lMat;
-        cv::threshold(lMat, lMat, double(threold_dark), 255, cv::THRESH_BINARY);
 
-        cv::morphologyEx(lMat, lMat, cv::MORPH_OPEN, element);
+        /**
+         * All process in left image.
+         */
 
 
-        cv::imshow(win_name, grayR);
-        cv::imshow(dis_name, distimg);
-        cv::imshow(dark_name, lMat);
+
+
+//        cv::imshow(win_name, grayL);
+//        cv::imshow(dis_name, distimg);
+//        cv::imshow(dark_name, lMat);
         cv::waitKey(10);
 
 
