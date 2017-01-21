@@ -3,7 +3,7 @@ project(cvReader)
 
 #set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3  -pthread -lopencv_aruco")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11   -pthread -lopencv_aruco")
 #
 #list(APPEND CMAKE_MODULE_PATH usr/share/OpenCV/
 #        )
@@ -14,6 +14,7 @@ find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(PCL 1.8 REQUIRED)
 add_definitions(${PCL_DEFINITIONS})
+
 
 include_directories(
         ${EIGEN3_INCLUDE_DIR}
