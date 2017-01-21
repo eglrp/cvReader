@@ -115,7 +115,7 @@ StereoVision::StereoVision(Mat cameraMatrixL_, Mat distCoeffL_,
     initUndistortRectifyMap(cameraMatrixL_, distCoeffL_, Rl, Pl, imageSize, CV_32FC1, mapLx, mapLy);
     initUndistortRectifyMap(cameraMatrixR_, distCoeffR_, Rr, Pr, imageSize, CV_32FC1, mapRx, mapRy);
 
-    bm->setBlockSize(3);    // ?????5~21????
+    bm->setBlockSize(5);    // ?????5~21????
     bm->setROI1(validROIL);
     bm->setROI2(validROIR);
     bm->setPreFilterCap(31);
@@ -140,7 +140,7 @@ void StereoVision::stereoMatch(Mat grayImageL_, Mat grayImageR_) {
     gpu_disp.download(disp);
     disp8 = disp;
     reprojectImageTo3D(disp, XYZ, Q, true);
-    XYZ = XYZ / 10000.0f;
+    XYZ = XYZ * 1.0f / 10000.0f;
 }
 
 void StereoVision::getXYZ(Point p_, Vec3f &XYZ_) {

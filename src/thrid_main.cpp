@@ -1,11 +1,11 @@
+#include <pcl/common/common_headers.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
 #include "functions.h"
 #include "StereoVision.h"
 
-#include <opencv2/viz.hpp>
+//#include <opencv2/viz.hpp>
 
-#include <pcl/visualization/pcl_visualizer.h>
-//#include <pcl/common/common_headers.h>
-//
 // 宏定义
 #define WINNAME    "Armor Recognition"
 #define WINNAME1 "Binary Image"
@@ -50,9 +50,9 @@ int sizeHist = 180;                // 180个色度，calcHist参数
 MatND dstHist;                    // calcHist结果
 
 int main() {
-//    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_ptr(
-//            new pcl::visualization::PCLVisualizer("view point cloud"));
-//    viewer_ptr->addCoordinateSystem(1.0);
+    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_ptr(
+            new pcl::visualization::PCLVisualizer("view point cloud"));
+    viewer_ptr->addCoordinateSystem(1.0);
 
     showText();
 
@@ -160,19 +160,41 @@ int main() {
         /* 对双目图进行立体匹配 */
         stereoVision.stereoMatch(grayL, grayR);
 
-//		boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> pc_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+        boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> pc_ptr
+                (new pcl::PointCloud<pcl::PointXYZRGB>);
 
 //		pc_ptr->push_back()
+        cv::Mat xyzmat(stereoVision.getXYZIMG());
+
+        for (int i(0); i < xyzmat.rows; ++i) {
+            for (int j(0); j < xyzmat.cols; ++j) {
+                pcl::PointXYZRGB tmpp(100, 100, 10);
+
+                tmpp.x = xyzmat.at<cv::Vec3f>(i, j)(0);
+                tmpp.y = xyzmat.at<cv::Vec3f>(i, j)(1);
+                tmpp.z = xyzmat.at<cv::Vec3f>(i, j)(2);
+
+//                std::cout <<"tmpp : " <<  tmpp << std::endl;
+
+                if (!std::isinf(tmpp.x * tmpp.y * tmpp.z) && !std::isnan(tmpp.x * tmpp.y * tmpp.z)) {
+                    pc_ptr->push_back(tmpp);
+                }
+
+            }
+
+        }
+        std::cout << pc_ptr->size() << std::endl;
 //		pcl::PointXYZRGB point(20,20,200);
 //		point.x = 1.0;
 //		point.y = 20.0;
 //		point.z = 10.0;
 //		pc_ptr->push_back(point);
-//
-//		viewer.removePointCloud("cloud");
-//        viewer.addPointCloud(pc_ptr,"cloud");
+
+        viewer_ptr->removePointCloud("cloud");
+        viewer_ptr->addPointCloud(pc_ptr, "cloud");
 
 
+        viewer_ptr->spinOnce();
 
 
         Mat distImg;
