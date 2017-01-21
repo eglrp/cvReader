@@ -168,17 +168,19 @@ int main() {
 
         for (int i(0); i < xyzmat.rows; ++i) {
             for (int j(0); j < xyzmat.cols; ++j) {
-                pcl::PointXYZRGB tmpp(frameL.at<cv::Vec3d>(i, j)(2),
-                                      frameL.at<cv::Vec3d>(i, j)(1),
-                                      frameL.at<cv::Vec3d>(i, j)(0));
-
+//                pcl::PointXYZRGB tmpp(frameL.at<cv::Vec3d>(i, j)(2),
+//                                      frameL.at<cv::Vec3d>(i, j)(1),
+//                                      frameL.at<cv::Vec3d>(i, j)(0));
+//
+                pcl::PointXYZRGB tmpp(100, 100, 0);
                 tmpp.x = xyzmat.at<cv::Vec3f>(i, j)(0);
                 tmpp.y = xyzmat.at<cv::Vec3f>(i, j)(1);
                 tmpp.z = xyzmat.at<cv::Vec3f>(i, j)(2);
 
 //                std::cout <<"tmpp : " <<  tmpp << std::endl;
 
-                if (!std::isinf(tmpp.x * tmpp.y * tmpp.z) && !std::isnan(tmpp.x * tmpp.y * tmpp.z)) {
+                if (!std::isinf(tmpp.x * tmpp.y * tmpp.z) &&
+                    !std::isnan(tmpp.x * tmpp.y * tmpp.z)) {
                     pc_ptr->push_back(tmpp);
                 }
 

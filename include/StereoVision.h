@@ -106,6 +106,8 @@ StereoVision::StereoVision(Mat cameraMatrixL_, Mat distCoeffL_,
 //    cuda::GpuMat gpu_cameraMatrixL_,gpu_distCoeffL_,gpu_cameraMatriXR_,gpu_distCoeffR_,
 
     gpu_disp = cuda::GpuMat(imageSize, CV_16S);
+    gpu_l = cuda::GpuMat(imageSize, CV_8U);
+    gpu_r = cuda::GpuMat(imageSize, CV_8U);
 
     bm = cuda::createStereoBM();
 //	bm = cv::StereoBM::create();
@@ -115,7 +117,7 @@ StereoVision::StereoVision(Mat cameraMatrixL_, Mat distCoeffL_,
     initUndistortRectifyMap(cameraMatrixL_, distCoeffL_, Rl, Pl, imageSize, CV_32FC1, mapLx, mapLy);
     initUndistortRectifyMap(cameraMatrixR_, distCoeffR_, Rr, Pr, imageSize, CV_32FC1, mapRx, mapRy);
 
-    bm->setBlockSize(10);    // ?????5~21????
+    bm->setBlockSize(15);    // ?????5~21????
     bm->setROI1(validROIL);
     bm->setROI2(validROIR);
     bm->setPreFilterCap(31);
@@ -139,8 +141,9 @@ void StereoVision::stereoMatch(Mat grayImageL_, Mat grayImageR_) {
     bm->compute(gpu_l, gpu_r, gpu_disp);    // ??????????????????CV_16S??
     gpu_disp.download(disp);
     disp8 = disp;
+//    disp.convertTo(disp8,CV_8U,15.9378/176);
     reprojectImageTo3D(disp, XYZ, Q, true);
-    XYZ = XYZ * 1.0f / 10000.0f;
+    XYZ = XYZ / 10000; 
 }
 
 void StereoVision::getXYZ(Point p_, Vec3f &XYZ_) {
