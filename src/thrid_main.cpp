@@ -3,7 +3,7 @@
 
 #include <opencv2/viz.hpp>
 
-//#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/pcl_visualizer.h>
 //#include <pcl/common/common_headers.h>
 //
 // 宏定义
@@ -178,7 +178,7 @@ int main() {
         Mat distImg;
         stereoVision.getDisparityImage(distImg);
         imshow("distImg", distImg);
-
+/*
         cv::Mat tmp3d = stereoVision.getXYZIMG();
 
 
@@ -221,7 +221,7 @@ int main() {
 //        win3d.setViewerPose(cam_pose);
         win3d.spinOnce(20, true);
 
-
+*/
         threshold(grayL, binaryImage, m_threshold, 255, THRESH_BINARY);
 
         morphologyEx(binaryImage, binaryImage, MORPH_OPEN, element);    // 开运算，先腐蚀，后膨胀。去掉小的白色轮廓

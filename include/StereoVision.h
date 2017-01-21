@@ -140,7 +140,7 @@ void StereoVision::stereoMatch(Mat grayImageL_, Mat grayImageR_) {
     gpu_disp.download(disp);
     disp8 = disp;
     reprojectImageTo3D(disp, XYZ, Q, true);
-    XYZ = XYZ / 16;
+    XYZ = XYZ / 10000.0f;
 }
 
 void StereoVision::getXYZ(Point p_, Vec3f &XYZ_) {
