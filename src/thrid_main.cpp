@@ -192,27 +192,34 @@ int main() {
                 data[i * tmp3d.cols + j].y = tvec(1);
                 data[i * tmp3d.cols + j].z = tvec(2);
 
-                std::cout << data[i * tmp3d.cols + j].x << data[i * tmp3d.cols + j].y
-                          << data[i * tmp3d.cols + j].z
-                          << std::endl;
+//                std::cout << data[i * tmp3d.cols + j].x << data[i * tmp3d.cols + j].y
+//                          << data[i * tmp3d.cols + j].z
+//                          << std::endl;
             }
         }
+        cv::Mat cloudt;
+
+        tmp3d.convertTo(cloudt, CV_32FC3, 0.01);
+
 
 
         win3d.setBackgroundColor();
-        cv::viz::WCloud cloud_widget(tmp3d, viz::Color::green());
-
+        cv::viz::WCloud cloud_widget(cloudt, viz::Color::white());
+        cloud_widget.setRenderingProperty(cv::viz::POINT_SIZE, 100);
+        std::cout << "here" << std::endl;
         std::cout << tmp3d.rows << " : " << tmp3d.cols << std::endl;
 //        cloud_widget.setPose(cam_pose);
 
         viz::WCameraPosition cpw(0.5); // Coordinate axes
         viz::WCameraPosition cpw_frustum(Vec2f(0.889484, 0.523599)); // Camera frustum
+
+//        win3d.showImage(tmp3d);
+        win3d.removeAllWidgets();
         win3d.showWidget("CPW", cpw, cam_pose);
         win3d.showWidget("CPW_FRUSTUM", cpw_frustum, cam_pose);
-//        win3d.showImage(tmp3d);
         win3d.showWidget("deep", cloud_widget, cam_pose);
 //        win3d.setViewerPose(cam_pose);
-        win3d.spinOnce();
+        win3d.spinOnce(20, true);
 
 
         threshold(grayL, binaryImage, m_threshold, 255, THRESH_BINARY);

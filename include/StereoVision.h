@@ -76,6 +76,10 @@ public:
         return XYZ;
     }
 
+    cv::Mat getQ() {
+        return Q;
+    }
+
     /* @brief ????????????
      */
     //void getRectifyImage(Mat &rectifyImageL_, Mat &rectifyImageR_);
@@ -136,7 +140,7 @@ void StereoVision::stereoMatch(Mat grayImageL_, Mat grayImageR_) {
     gpu_disp.download(disp);
     disp8 = disp;
     reprojectImageTo3D(disp, XYZ, Q, true);
-    XYZ = XYZ / 10000.0;
+    XYZ = XYZ / 16;
 }
 
 void StereoVision::getXYZ(Point p_, Vec3f &XYZ_) {
