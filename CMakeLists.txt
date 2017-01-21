@@ -12,10 +12,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3  -pthread -lopencv_aruco"
 find_package(Eigen3 REQUIRED)
 #find_package(OPENCV REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(PCL 1.8 REQUIRED)
+add_definitions(${PCL_DEFINITIONS})
 
 include_directories(
         ${EIGEN3_INCLUDE_DIR}
         ${OpenCV_INCLUDE_DIRS}
+        ${PCL_INCLUDE_DIRS}
         ./include
         /usr/local/cuda/include
         /usr/include
@@ -26,6 +29,7 @@ include_directories(
 link_directories(
         /usr/local/lib
         /usr/lib
+        ${PCL_LIBRARY_DIRS}
 )
 
 add_executable(testcv src/main.cpp)
@@ -56,4 +60,4 @@ target_link_libraries(DetectorMethodTest ${OpenCV_LIBS})
 
 
 add_executable(Test_search src/thrid_main.cpp)
-target_link_libraries(Test_search ${OpenCV_LIBS})
+target_link_libraries(Test_search ${OpenCV_LIBS} ${PCL_LIBRARIES})
