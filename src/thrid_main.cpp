@@ -1,9 +1,10 @@
 #include "functions.h"
 #include "StereoVision.h"
 
+#include <opencv2/viz.hpp>
 
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/common/common_headers.h>
+//#include <pcl/visualization/pcl_visualizer.h>
+//#include <pcl/common/common_headers.h>
 //
 // 宏定义
 #define WINNAME    "Armor Recognition"
@@ -49,12 +50,26 @@ int sizeHist = 180;                // 180个色度，calcHist参数
 MatND dstHist;                    // calcHist结果
 
 int main() {
-    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_ptr(
-            new pcl::visualization::PCLVisualizer("view point cloud"));
-    viewer_ptr->addCoordinateSystem(1.0);
+//    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_ptr(
+//            new pcl::visualization::PCLVisualizer("view point cloud"));
+//    viewer_ptr->addCoordinateSystem(1.0);
 
     showText();
 
+
+    cv::viz::Viz3d win3d("3d show");
+    /// Add coordinate axes
+    win3d.showWidget("Coordinate Widget", viz::WCoordinateSystem());
+
+    /// Let's assume camera has the following properties
+    Vec3f cam_pos(3.0f, 3.0f, 3.0f), cam_focal_point(3.0f, 3.0f, 2.0f), cam_y_dir(-1.0f, 0.0f, 0.0f);
+
+    /// We can get the pose of the cam using makeCameraPose
+    Affine3f cam_pose = viz::makeCameraPose(cam_pos, cam_focal_point, cam_y_dir);
+    Affine3f transform = viz::makeTransformToGlobal(Vec3f(0.0f, -1.0f, 0.0f),
+                                                    Vec3f(-1.0f, 0.0f, 0.0f),
+                                                    Vec3f(0.0f, 0.0f, -1.0f),
+                                                    cam_pos);
     /***************************************
             读取 video.cfg 里面的键值对
     ****************************************/
@@ -159,9 +174,46 @@ int main() {
 
 
 
+
         Mat distImg;
         stereoVision.getDisparityImage(distImg);
         imshow("distImg", distImg);
+
+        cv::Mat tmp3d = stereoVision.getXYZIMG();
+
+
+        cv::Mat cloudmat(tmp3d.rows, tmp3d.cols, CV_32FC3);
+        Point3f *data = cloudmat.ptr<cv::Point3f>();
+        for (int i(0); i < tmp3d.rows; ++i) {
+            for (int j(0); j < tmp3d.cols; ++j) {
+                cv::Vec3f tvec;
+                stereoVision.getXYZ(cv::Point2f(i, j), tvec);
+                data[i * tmp3d.cols + j].x = tvec(0);
+                data[i * tmp3d.cols + j].y = tvec(1);
+                data[i * tmp3d.cols + j].z = tvec(2);
+
+                std::cout << data[i * tmp3d.cols + j].x << data[i * tmp3d.cols + j].y
+                          << data[i * tmp3d.cols + j].z
+                          << std::endl;
+            }
+        }
+
+
+        win3d.setBackgroundColor();
+        cv::viz::WCloud cloud_widget(tmp3d, viz::Color::green());
+
+        std::cout << tmp3d.rows << " : " << tmp3d.cols << std::endl;
+//        cloud_widget.setPose(cam_pose);
+
+        viz::WCameraPosition cpw(0.5); // Coordinate axes
+        viz::WCameraPosition cpw_frustum(Vec2f(0.889484, 0.523599)); // Camera frustum
+        win3d.showWidget("CPW", cpw, cam_pose);
+        win3d.showWidget("CPW_FRUSTUM", cpw_frustum, cam_pose);
+//        win3d.showImage(tmp3d);
+        win3d.showWidget("deep", cloud_widget, cam_pose);
+//        win3d.setViewerPose(cam_pose);
+        win3d.spinOnce();
+
 
         threshold(grayL, binaryImage, m_threshold, 255, THRESH_BINARY);
 
