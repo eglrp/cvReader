@@ -168,7 +168,9 @@ int main() {
 
         for (int i(0); i < xyzmat.rows; ++i) {
             for (int j(0); j < xyzmat.cols; ++j) {
-                pcl::PointXYZRGB tmpp(100, 100, 10);
+                pcl::PointXYZRGB tmpp(frameL.at<cv::Vec3d>(i, j)(2),
+                                      frameL.at<cv::Vec3d>(i, j)(1),
+                                      frameL.at<cv::Vec3d>(i, j)(0));
 
                 tmpp.x = xyzmat.at<cv::Vec3f>(i, j)(0);
                 tmpp.y = xyzmat.at<cv::Vec3f>(i, j)(1);

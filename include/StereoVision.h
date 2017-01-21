@@ -105,7 +105,7 @@ StereoVision::StereoVision(Mat cameraMatrixL_, Mat distCoeffL_,
 // 	R = R_;
 //    cuda::GpuMat gpu_cameraMatrixL_,gpu_distCoeffL_,gpu_cameraMatriXR_,gpu_distCoeffR_,
 
-    gpu_disp = cuda::GpuMat(imageSize, CV_16U);
+    gpu_disp = cuda::GpuMat(imageSize, CV_16S);
 
     bm = cuda::createStereoBM();
 //	bm = cv::StereoBM::create();
