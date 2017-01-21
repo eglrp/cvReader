@@ -115,7 +115,7 @@ StereoVision::StereoVision(Mat cameraMatrixL_, Mat distCoeffL_,
     initUndistortRectifyMap(cameraMatrixL_, distCoeffL_, Rl, Pl, imageSize, CV_32FC1, mapLx, mapLy);
     initUndistortRectifyMap(cameraMatrixR_, distCoeffR_, Rr, Pr, imageSize, CV_32FC1, mapRx, mapRy);
 
-    bm->setBlockSize(5);    // ?????5~21????
+    bm->setBlockSize(10);    // ?????5~21????
     bm->setROI1(validROIL);
     bm->setROI2(validROIR);
     bm->setPreFilterCap(31);
