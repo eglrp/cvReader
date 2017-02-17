@@ -66,3 +66,7 @@ target_link_libraries(Test_search ${OpenCV_LIBS} ${PCL_LIBRARIES})
 
 add_executable(viz_test src/viz_test.cpp)
 target_link_libraries(viz_test ${OpenCV_LIBS})
+
+
+add_executable(fast_read src/FastRead.cpp)
+target_link_libraries(fast_read ${OpenCV_LIBS})
