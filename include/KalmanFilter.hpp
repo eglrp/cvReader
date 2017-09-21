@@ -45,9 +45,21 @@
 #define CVREADER_KALMANFILTER_HPP
 
 namespace own {
+    /**
+     * Assumed the acc is zero.
+     * @tparam T double float (do not use int)
+     * @tparam state_num
+     * @tparam observe_num
+     */
     template<typename T, int state_num, int observe_num>
     class KalmanFilter {
     public:
+        /**
+         *
+         * @param eval_sigma
+         * @param noise_sigma
+         * @param state_sigma_vec
+         */
         KalmanFilter(T eval_sigma,
                      T noise_sigma,
                      Eigen::VectorXd state_sigma_vec) {
@@ -84,11 +96,20 @@ namespace own {
 
         }
 
+        /**
+         *
+         * @param state_vec
+         * @return
+         */
         bool InitialState(Eigen::VectorXd state_vec) {
             X_ = state_vec;
             return true;
         }
 
+        /**
+         *
+         * @return
+         */
         bool InitialMatrix() {
             A_.setZero();
             A_(0, 0) = 1.0;
